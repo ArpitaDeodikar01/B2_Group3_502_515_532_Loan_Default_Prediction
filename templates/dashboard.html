@@ -13,7 +13,1676 @@ thisis original code
 
     <style>
         body {
-            background: #f7f9fc;
+            background: #f7f9fc;<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LoanLens</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* --- COLOR PALETTE & GLOBAL STYLES --- */
+        :root {
+            --primary-color: #007bff;
+            /* Bright Blue */
+            --primary-hover: #0056b3;
+            --background-light: #f7f9fc;
+            --card-background: rgba(255, 255, 255, 0.95);
+            --text-color: #343a40;
+            --secondary-bg: #e9ecef40;
+        }
+
+
+
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-color);
+            transition: background-color 0.3s ease;
+        }
+
+
+
+
+        /* --- CARD STYLING & ANIMATION (Lift on Hover) --- */
+        .card {
+            border-radius: 16px;
+            /* Increased modern rounding */
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.05);
+            /* Softer shadow */
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            /* Subtle light border */
+            background: var(--card-background);
+            backdrop-filter: blur(5px);
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+            /* Smoother transition */
+        }
+
+
+
+
+        .card:hover {
+            transform: translateY(-4px);
+            /* More pronounced lift on hover */
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.18), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+
+
+
+
+        /* --- NAVIGATION TAB STYLING & ANIMATION --- */
+        .nav-tabs {
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+
+        .nav-link {
+            font-weight: 500;
+            color: #6c757d;
+            border: none;
+            border-radius: 12px 12px 0 0 !important;
+            margin-right: 10px;
+            padding: 10px 20px;
+            transition: all 0.3s ease-out;
+        }
+
+
+
+
+        .nav-link:hover {
+            color: var(--primary-color);
+            background-color: rgba(0, 123, 255, 0.05);
+            transform: translateY(-1px);
+        }
+
+
+
+
+        .nav-link.active {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+            background-color: #fff !important;
+            border-bottom: 3px solid var(--primary-color) !important;
+            /* Active indicator */
+            transform: translateY(0);
+            /* Reset lift for active */
+        }
+
+
+        /* --- TAB CONTENT FADE-IN ANIMATION (Key improvement) --- */
+        /* Use standard Bootstrap classes for activation but customize the fade transition */
+        .tab-pane {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+        }
+
+
+        .tab-pane.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+
+
+
+        /* --- FORM ELEMENT ANIMATION (Focus Glow) --- */
+        .form-select,
+        .form-control,
+        .btn {
+            border-radius: 10px;
+            /* Slightly more rounded */
+            transition: all 0.3s ease;
+        }
+
+
+        .form-select:focus,
+        .form-control:focus,
+        .form-range:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.2);
+            /* Softer glow */
+        }
+
+
+
+
+        /* --- BUTTON ANIMATION (Lift on Hover) --- */
+        .btn-primary,
+        .btn-success,
+        .btn-dark,
+        .btn-outline-danger {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+
+        .btn:hover {
+            transform: translateY(-2px);
+            /* Subtle lift */
+        }
+
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.5);
+            transform: translateY(-3px);
+        }
+
+
+        .btn-success:hover {
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+            transform: translateY(-3px);
+        }
+
+
+        /* Enhanced form labels */
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+
+        /* Better card titles */
+        .card-title {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+
+        /* Loading state */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+
+
+
+        /* --- SLIDER STYLES & VALUE ANIMATION (Key improvement) --- */
+        .slider-container {
+            margin: 15px 0;
+            padding: 10px;
+            background: var(--secondary-bg);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+
+        .slider-label span:last-child {
+            color: var(--primary-color);
+            font-weight: 800;
+            /* Animation: Value counter zoom defined in JS listeners */
+            transition: transform 0.15s ease-out;
+            min-width: 80px;
+            /* Prevent jitter when formatting changes length */
+            text-align: right;
+        }
+
+
+        /* Style the range track for better visibility */
+        .form-range::-webkit-slider-thumb {
+            background: var(--primary-color);
+        }
+
+
+        .form-range::-moz-range-thumb {
+            background: var(--primary-color);
+        }
+
+
+
+
+        /* --- RESULT MESSAGE ANIMATION (Key improvement) --- */
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        @keyframes pulse {
+
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+
+        #predictResult>div,
+        #bankResult>div,
+        #clusterTestResult>div {
+            animation: fadeInSlide 0.6s ease-out;
+        }
+
+
+        /* --- ENHANCED RISK DISPLAY STYLES --- */
+        .risk-card {
+            border-radius: 16px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transition: all 0.3s ease;
+        }
+
+
+        .risk-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+        }
+
+
+        .risk-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: pulse 2s infinite;
+        }
+
+
+        .risk-high {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: 2px solid #dc3545;
+        }
+
+
+        .risk-medium {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #212529;
+            border: 2px solid #ffc107;
+        }
+
+
+        .risk-low {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: white;
+            border: 2px solid #28a745;
+        }
+
+
+        .risk-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+
+        .risk-info-item {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+
+        .risk-info-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(5px);
+        }
+
+
+        .risk-info-item.high-border {
+            border-left-color: #dc3545;
+        }
+
+
+        .risk-info-item.medium-border {
+            border-left-color: #ffc107;
+        }
+
+
+        .risk-info-item.low-border {
+            border-left-color: #28a745;
+        }
+
+
+        .risk-info-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+
+        .risk-info-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #212529;
+        }
+
+
+        .risk-icon {
+            font-size: 2.5rem;
+            margin-right: 15px;
+            display: inline-block;
+        }
+
+
+        .suggestion-box {
+            margin-top: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-left: 4px solid;
+            font-style: italic;
+        }
+
+
+        .suggestion-box.high-border {
+            border-left-color: #dc3545;
+            background: rgba(248, 215, 218, 0.5);
+        }
+
+
+        .suggestion-box.medium-border {
+            border-left-color: #ffc107;
+            background: rgba(255, 243, 205, 0.5);
+        }
+
+
+        .suggestion-box.low-border {
+            border-left-color: #28a745;
+            background: rgba(212, 237, 218, 0.5);
+        }
+
+
+
+
+        /* Cluster Loading Spinner Animation */
+        #clusterLoading {
+            padding: 20px;
+            opacity: 1;
+            transition: opacity 0.4s ease-out;
+        }
+
+
+        #clusterLoading.hidden {
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        /* Chatbot Styles */
+        .chat-message {
+            animation: fadeInSlide 0.3s ease-out;
+        }
+
+        .user-message {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .user-message .message-content {
+            max-width: 70%;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 18px 18px 4px 18px;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        }
+
+        .bot-message {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .bot-message .message-content {
+            max-width: 70%;
+            background: white;
+            color: var(--text-color);
+            padding: 12px 18px;
+            border-radius: 18px 18px 18px 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #chatMessages {
+            scroll-behavior: smooth;
+        }
+
+        #chatMessages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chatMessages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        #chatMessages::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        #chatMessages::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+
+<body>
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <h2 class="display-5">
+                <span class="text-primary me-2">LoanLens</span> <span class="fs-4 text-secondary">| Finance Dashboard
+                    💡</span>
+            </h2>
+            <a href="/logout" class="btn btn-outline-danger btn-sm px-3 py-2">
+                Logout <span class="ms-1">👋</span>
+            </a>
+        </div>
+
+
+
+
+        <ul class="nav nav-tabs" id="featureTabs">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#predict">💰 Loan Prediction</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#visuals">📊 Visual Insights</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#banks">🏦 Bank Suggestion</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#clusters">⭐ Customer Clusters</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#chatbot">🤖 Chatbot</a></li>
+        </ul>
+
+
+
+
+        <div class="tab-content mt-4">
+            <div id="predict" class="tab-pane active show">
+                <div class="card p-4">
+                    <h4 class="card-title text-primary mb-4">Risk Predictor 📈</h4>
+                    <form id="predictForm" class="row g-4">
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Annual Income (₹)</span>
+                                    <span id="incomeVal" data-is-currency="true">500,000</span>
+                                </div>
+                                <input type="range" class="form-range" id="Income" name="Income" min="100000"
+                                    max="5000000" step="10000" value="500000">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Loan Amount (₹)</span>
+                                    <span id="loanAmountVal" data-is-currency="true">300,000</span>
+                                </div>
+                                <input type="range" class="form-range" id="LoanAmount" name="LoanAmount" min="50000"
+                                    max="5000000" step="10000" value="300000">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Credit Score</span>
+                                    <span id="creditScoreVal">650</span>
+                                </div>
+                                <input type="range" class="form-range" id="CreditScore" name="CreditScore" min="300"
+                                    max="850" value="650">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Age</span>
+                                    <span id="ageVal">30</span>
+                                </div>
+                                <input type="range" class="form-range" id="Age" name="Age" min="18" max="80" value="30">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Months Employed</span>
+                                    <span id="monthsEmployedVal">24</span>
+                                </div>
+                                <input type="range" class="form-range" id="MonthsEmployed" name="MonthsEmployed" min="0"
+                                    max="480" value="24">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Credit Lines</span>
+                                    <span id="numCreditLinesVal">3</span>
+                                </div>
+                                <input type="range" class="form-range" id="NumCreditLines" name="NumCreditLines" min="0"
+                                    max="20" value="3">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Interest Rate (%)</span>
+                                    <span id="interestRateVal">8.50</span>
+                                </div>
+                                <input type="range" class="form-range" id="InterestRate" name="InterestRate" min="5"
+                                    max="20" step="0.1" value="8.5">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Loan Term (months)</span>
+                                    <span id="loanTermVal">60</span>
+                                </div>
+                                <input type="range" class="form-range" id="LoanTerm" name="LoanTerm" min="6" max="360"
+                                    value="60">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>DTI Ratio</span>
+                                    <span id="dtiRatioVal">0.35</span>
+                                </div>
+                                <input type="range" class="form-range" id="DTIRatio" name="DTIRatio" min="0" max="1"
+                                    step="0.01" value="0.35">
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="col-md-4 col-sm-6">
+                            <label class="form-label">Education</label>
+                            <select class="form-select" name="Education" required>
+                                <option value="">Select Education</option>
+                                <option value="High School">High School</option>
+                                <option value="Bachelor's">Bachelor's</option>
+                                <option value="Master's">Master's</option>
+                                <option value="PhD">PhD</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <label class="form-label">Employment Type</label>
+                            <select class="form-select" name="EmploymentType" required>
+                                <option value="">Select Employment</option>
+                                <option value="Unemployed">Unemployed</option>
+                                <option value="Self-employed">Self-employed</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <label class="form-label">Marital Status</label>
+                            <select class="form-select" name="MaritalStatus" required>
+                                <option value="">Select Status</option>
+                                <option value="Single">Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Divorced">Divorced</option>
+                            </select>
+                        </div>
+
+
+
+
+                        <div class="col-md-3 col-sm-6">
+                            <label class="form-label">Has Mortgage?</label>
+                            <select class="form-select" name="HasMortgage" required>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <label class="form-label">Has Dependents?</label>
+                            <select class="form-select" name="HasDependents" required>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <label class="form-label">Loan Purpose</label>
+                            <select class="form-select" name="LoanPurpose" required>
+                                <option value="">Select Purpose</option>
+                                <option value="Home">Home</option>
+                                <option value="Auto">Auto</option>
+                                <option value="Education">Education</option>
+                                <option value="Business">Business</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <label class="form-label">Has Co-Signer?</label>
+                            <select class="form-select" name="HasCoSigner" required>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+
+
+
+
+                        <div class="col-12 text-center">
+                            <button class="btn btn-primary btn-lg mt-4 w-50" type="submit" style="
+                                background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                                border: none;
+                                box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+                                font-weight: 600;
+                                letter-spacing: 0.5px;
+                                padding: 12px 30px;
+                            ">
+                                <span>🔍</span> Predict Risk <span class="ms-2">🚀</span>
+                            </button>
+                        </div>
+                    </form>
+                    <div id="predictResult" class="mt-5">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div id="visuals" class="tab-pane">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card p-3 h-100">
+                            <h5 class="text-primary">Default Rate by Education 🎓</h5>
+                            <canvas id="educationChart"></canvas>
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <div class="card p-3 h-100">
+                            <h5 class="text-primary">Feature Correlations 🔗</h5>
+                            <canvas id="corrChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div id="banks" class="tab-pane">
+                <div class="card p-4">
+                    <h4 class="card-title text-success mb-4">Find Best Banks 🔎</h4>
+                    <form id="bankForm" class="row g-4">
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Target Min Income (₹)</span>
+                                    <span id="bankIncomeVal" data-is-currency="true">500,000</span>
+                                </div>
+                                <input type="range" class="form-range" id="BankIncome" name="Income" min="100000"
+                                    max="5000000" step="10000" value="500000">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Target Max Loan (₹)</span>
+                                    <span id="bankLoanAmountVal" data-is-currency="true">3,000,000</span>
+                                </div>
+                                <input type="range" class="form-range" id="BankLoanAmount" name="LoanAmount" min="50000"
+                                    max="5000000" step="10000" value="3000000">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Target Min Credit Score</span>
+                                    <span id="bankCreditScoreVal">680</span>
+                                </div>
+                                <input type="range" class="form-range" id="BankCreditScore" name="CreditScore" min="300"
+                                    max="850" value="680">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Your Age</span>
+                                    <span id="bankAgeVal">35</span>
+                                </div>
+                                <input type="range" class="form-range" id="BankAge" name="Age" min="18" max="80"
+                                    value="35">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Education Match</label>
+                            <select class="form-select" name="Education" required>
+                                <option value="">Select Education</option>
+                                {% for edu in bank_categories.Education %}
+                                <option value="{{ edu }}">{{ edu }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Employment Type Match</label>
+                            <select class="form-select" name="EmploymentType" required>
+                                <option value="">Select Employment</option>
+                                {% for emp in bank_categories.EmploymentType %}
+                                <option value="{{ emp }}">{{ emp }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="col-12 text-center">
+                            <button class="btn btn-success btn-lg mt-3 w-50" type="submit">
+                                Find Banks <span class="ms-2">✅</span>
+                            </button>
+                        </div>
+                    </form>
+                    <div id="bankResult" class="mt-5">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div id="clusters" class="tab-pane">
+                <div class="card p-4">
+                    <h4 class="card-title text-dark mb-4">Customer Risk Segmentation 🧑‍🤝‍🧑</h4>
+                    <p class="text-muted">Explore the 6 key customer clusters based on financial and demographic data.
+                    </p>
+
+
+                    <div id="clusterLoading" class="text-center">
+                        <div class="spinner-border text-primary ms-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-primary">Analyzing clusters...</p>
+                    </div>
+
+
+                    <div id="clusterStats" style="display:none;" class="mb-4"></div>
+                    <div class="row g-4">
+                        <div class="col-md-8">
+                            <canvas id="clustersChart" width="600" height="400" style="display:none;"></canvas>
+                        </div>
+                        <div class="col-md-4">
+                            <canvas id="clusterPie" width="300" height="300" style="display:none;"></canvas>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="card mt-4 bg-light shadow-sm" style="display:none;" id="clusterTestCard">
+                        <div class="card-body">
+                            <h5 class="card-title">🎯 Find Your Cluster</h5>
+                            <form id="clusterTestForm" class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Income (₹)</label>
+                                    <input type="number" name="Income" class="form-control" placeholder="Income"
+                                        required min="100000">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Credit Score</label>
+                                    <input type="number" name="CreditScore" class="form-control" placeholder="Score"
+                                        required min="300" max="850">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Age</label>
+                                    <input type="number" name="Age" class="form-control" placeholder="Age" required
+                                        min="18">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Loan Amount (₹)</label>
+                                    <input type="number" name="LoanAmount" class="form-control"
+                                        placeholder="Loan Amount" required min="50000">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Education</label>
+                                    <select name="Education" class="form-select" required>
+                                        <option value="">Select Education</option>
+                                        <option value="High School">High School</option>
+                                        <option value="Bachelor's">Bachelor's</option>
+                                        <option value="Master's">Master's</option>
+                                        <option value="PhD">PhD</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Marital Status</label>
+                                    <select name="MaritalStatus" class="form-select" required>
+                                        <option value="">Select Status</option>
+                                        <option value="Single">Single</option>
+                                        <option value="Married">Married</option>
+                                        <option value="Divorced">Divorced</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Employment Type</label>
+                                    <select name="EmploymentType" class="form-select" required>
+                                        <option value="">Select Employment</option>
+                                        <option value="Unemployed">Unemployed</option>
+                                        <option value="Self-employed">Self-employed</option>
+                                        <option value="Full-time">Full-time</option>
+                                        <option value="Part-time">Part-time</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 text-center">
+                                    <button type="submit" class="btn btn-dark w-50 mt-3">
+                                        Find My Cluster <span class="ms-2">⭐</span>
+                                    </button>
+                                </div>
+                            </form>
+                            <div id="clusterTestResult" class="mt-4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chatbot" class="tab-pane">
+                <div class="card p-4">
+                    <h4 class="card-title text-primary mb-4">AI Chatbot Assistant 🤖</h4>
+                    <p class="text-muted mb-4">Ask me anything about loans, financial advice, or loan default predictions!</p>
+                    
+                    <div class="card" style="height: 500px; display: flex; flex-direction: column; background: var(--card-background);">
+                        <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 20px; background: var(--background-light); border-radius: 12px 12px 0 0;">
+                            <div class="chat-message bot-message mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="me-2">
+                                        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">🤖</div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="card p-3" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                            <p class="mb-0">Hello! I'm your AI assistant. How can I help you with loans and financial questions today?</p>
+                                        </div>
+                                        <small class="text-muted ms-2">Just now</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding: 15px; background: white; border-top: 1px solid #e0e0e0; border-radius: 0 0 12px 12px;">
+                            <form id="chatbotForm" class="d-flex gap-2">
+                                <input type="text" id="chatInput" class="form-control" placeholder="Type your message here..." autocomplete="off" required style="border-radius: 25px; padding: 10px 20px;">
+                                <button type="submit" class="btn btn-primary" style="border-radius: 25px; padding: 10px 25px; min-width: 100px;">
+                                    <span id="sendBtnText">Send</span>
+                                    <span id="sendBtnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
+    <script>
+        // --- JavaScript for dynamic UI/Animation ---
+
+
+
+
+        // 1. Slider Value Synchronization and Animation
+        const sliders = [
+            { id: 'Income', valId: 'incomeVal' },
+            { id: 'LoanAmount', valId: 'loanAmountVal' },
+            { id: 'CreditScore', valId: 'creditScoreVal' },
+            { id: 'Age', valId: 'ageVal' },
+            { id: 'MonthsEmployed', valId: 'monthsEmployedVal' },
+            { id: 'NumCreditLines', valId: 'numCreditLinesVal' },
+            { id: 'InterestRate', valId: 'interestRateVal' },
+            { id: 'LoanTerm', valId: 'loanTermVal' },
+            { id: 'DTIRatio', valId: 'dtiRatioVal' },
+            { id: 'BankIncome', valId: 'bankIncomeVal' },
+            { id: 'BankLoanAmount', valId: 'bankLoanAmountVal' },
+            { id: 'BankCreditScore', valId: 'bankCreditScoreVal' },
+            { id: 'BankAge', valId: 'bankAgeVal' }
+        ];
+
+
+
+
+        function formatValue(inputElement, value) {
+            const isCurrency = inputElement.getAttribute('data-is-currency') === 'true';
+            const isDecimal = inputElement.id === 'DTIRatio' || inputElement.id === 'InterestRate';
+
+
+
+
+            if (isCurrency) {
+                // Format as Indian currency (lakhs/crores)
+                return Number(value).toLocaleString('en-IN');
+            }
+
+
+            if (isDecimal) {
+                // Format to two decimal places
+                return parseFloat(value).toFixed(2);
+            }
+
+
+
+
+            // Default: return raw number
+            return value;
+        }
+
+
+
+
+        sliders.forEach(s => {
+            const slider = document.getElementById(s.id);
+            const valSpan = document.getElementById(s.valId);
+
+
+
+
+            if (slider && valSpan) {
+                // Initial format and display
+                valSpan.textContent = formatValue(slider, slider.value);
+
+
+
+
+                // Update on slide (Input event fires continuously)
+                slider.addEventListener('input', function () {
+                    // Animation: Scale up the value span when sliding
+                    valSpan.style.transform = 'scale(1.15)';
+                    valSpan.textContent = formatValue(this, this.value);
+                });
+
+
+
+
+                // Animation: Scale back down after changing (Change event fires on release)
+                slider.addEventListener('change', function () {
+                    valSpan.style.transform = 'scale(1.0)';
+                });
+            }
+        });
+
+
+
+
+        // 2. Manual Tab Transition Animation (Overrides Bootstrap 5's default fade for better control)
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabLinks = document.querySelectorAll('#featureTabs .nav-link');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetPane = document.querySelector(targetId);
+
+
+                    // 1. Deactivate current active pane (triggers CSS transition out)
+                    document.querySelector('.tab-pane.active')?.classList.remove('active');
+
+
+                    // 2. Deactivate all links
+                    document.querySelectorAll('#featureTabs .nav-link').forEach(l => l.classList.remove('active'));
+
+
+                    // 3. Activate the clicked link
+                    this.classList.add('active');
+
+
+                    // 4. Wait for a moment, then activate new pane (triggers CSS transition in)
+                    // Note: For a clean cross-fade, the old pane should be fading out while the new one is delayed.
+                    // Using a small delay ensures the 'transition in' properties (opacity: 1, transform: 0) are applied after the 'transition out' properties (opacity: 0, transform: 10px) have been removed from the old pane.
+                    setTimeout(() => {
+                        targetPane.classList.add('active');
+                    }, 50);
+                });
+            });
+        });
+    </script>
+
+
+
+
+</body>
+
+
+</html>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let educationChart, corrChart, clustersChart, clusterPie;
+
+
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // ===== SLIDER VALUE UPDATES (General) =====
+        function updateSliderValue(sliderId, displayId, format = 'number') {
+            const slider = document.getElementById(sliderId);
+            const display = document.getElementById(displayId);
+            if (!slider || !display) return;
+            slider.addEventListener('input', () => {
+                let value = slider.value;
+                if (format === 'currency') {
+                    display.textContent = '₹' + parseInt(value).toLocaleString('en-IN');
+                } else if (format === 'decimal') {
+                    display.textContent = parseFloat(value).toFixed(2);
+                } else {
+                    display.textContent = value;
+                }
+            });
+            // Initial display
+            let value = slider.value;
+            if (format === 'currency') {
+                display.textContent = '₹' + parseInt(value).toLocaleString('en-IN');
+            } else if (format === 'decimal') {
+                display.textContent = parseFloat(value).toFixed(2);
+            } else {
+                display.textContent = value;
+            }
+        }
+
+
+
+
+        // Bind all prediction sliders
+        updateSliderValue('Income', 'incomeVal', 'currency');
+        updateSliderValue('LoanAmount', 'loanAmountVal', 'currency');
+        updateSliderValue('CreditScore', 'creditScoreVal');
+        updateSliderValue('Age', 'ageVal');
+        updateSliderValue('MonthsEmployed', 'monthsEmployedVal');
+        updateSliderValue('NumCreditLines', 'numCreditLinesVal');
+        updateSliderValue('InterestRate', 'interestRateVal', 'decimal');
+        updateSliderValue('LoanTerm', 'loanTermVal');
+        updateSliderValue('DTIRatio', 'dtiRatioVal', 'decimal');
+
+
+        // Bind all bank sliders (NEW)
+        updateSliderValue('BankIncome', 'bankIncomeVal', 'currency');
+        updateSliderValue('BankLoanAmount', 'bankLoanAmountVal', 'currency');
+        updateSliderValue('BankCreditScore', 'bankCreditScoreVal');
+        updateSliderValue('BankAge', 'bankAgeVal');
+
+
+
+
+
+
+
+
+        // --- Loan Prediction ---
+        document.getElementById("predictForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Analyzing...';
+
+
+            const data = Object.fromEntries(new FormData(e.target).entries());
+            try {
+                const res = await fetch("/api/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+                const out = await res.json();
+                if (res.ok) {
+                    // Determine styling based on risk level
+                    let riskClass, riskIcon, borderClass, riskBgGradient;
+                    if (out.risk_level === "High") {
+                        riskClass = "risk-high";
+                        riskIcon = "🔴";
+                        borderClass = "high-border";
+                        riskBgGradient = "linear-gradient(135deg, rgba(248, 215, 218, 0.9) 0%, rgba(220, 53, 69, 0.1) 100%)";
+                    } else if (out.risk_level === "Medium") {
+                        riskClass = "risk-medium";
+                        riskIcon = "🟡";
+                        borderClass = "medium-border";
+                        riskBgGradient = "linear-gradient(135deg, rgba(255, 243, 205, 0.9) 0%, rgba(255, 193, 7, 0.1) 100%)";
+                    } else {
+                        riskClass = "risk-low";
+                        riskIcon = "🟢";
+                        borderClass = "low-border";
+                        riskBgGradient = "linear-gradient(135deg, rgba(212, 237, 218, 0.9) 0%, rgba(40, 167, 69, 0.1) 100%)";
+                    }
+
+
+                    const probabilityPercent = (out.probability * 100).toFixed(2);
+                    const monthlyPaymentFormatted = new Intl.NumberFormat('en-IN', {
+                        style: 'currency',
+                        currency: 'INR',
+                        maximumFractionDigits: 0
+                    }).format(out.monthly_payment);
+
+
+                    document.getElementById("predictResult").innerHTML =
+                        `<div class='risk-card' style='background: ${riskBgGradient};'>
+                            <div class='text-center mb-3'>
+                                <span class='risk-icon'>${riskIcon}</span>
+                                <span class='risk-badge ${riskClass}'>
+                                    ${out.risk_level} Risk
+                                </span>
+                            </div>
+                           
+                            <div class='risk-info-grid'>
+                                <div class='risk-info-item ${borderClass}'>
+                                    <div class='risk-info-label'>Risk Probability</div>
+                                    <div class='risk-info-value' style='color: ${out.risk_level === "High" ? "#dc3545" : out.risk_level === "Medium" ? "#ffc107" : "#28a745"};'>
+                                        ${probabilityPercent}%
+                                    </div>
+                                </div>
+                               
+                                <div class='risk-info-item ${borderClass}'>
+                                    <div class='risk-info-label'>Monthly Payment</div>
+                                    <div class='risk-info-value'>${monthlyPaymentFormatted}</div>
+                                </div>
+                               
+                                <div class='risk-info-item ${borderClass}'>
+                                    <div class='risk-info-label'>Loan Duration</div>
+                                    <div class='risk-info-value'>${out.estimated_months} months</div>
+                                </div>
+                               
+                                <div class='risk-info-item ${borderClass}'>
+                                    <div class='risk-info-label'>Total Amount</div>
+                                    <div class='risk-info-value'>${new Intl.NumberFormat('en-IN', {
+                            style: 'currency',
+                            currency: 'INR',
+                            maximumFractionDigits: 0
+                        }).format(out.monthly_payment * out.estimated_months)}</div>
+                                </div>
+                            </div>
+                           
+                            <div class='suggestion-box ${borderClass}'>
+                                <strong>💡 Recommendation:</strong> ${out.suggestion || 'No specific recommendation available.'}
+                            </div>
+                        </div>`;
+                } else {
+                    document.getElementById("predictResult").innerHTML =
+                        `<div class='alert alert-danger' style='border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);'>
+                            <strong>❌ Error:</strong> ${out.error || 'An error occurred while processing your request.'}
+                        </div>`;
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById("predictResult").innerHTML =
+                    `<div class='alert alert-danger' style='border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);'>
+                        <strong>❌ Server Error:</strong> Unable to connect to the server. Please try again later.
+                    </div>`;
+            } finally {
+                // Restore button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
+
+
+
+
+        // --- Visual Insights ---
+        async function loadVisuals() {
+            try {
+                const res = await fetch("/api/visuals");
+                const data = await res.json();
+
+
+
+
+                if (educationChart) educationChart.destroy();
+                educationChart = new Chart(document.getElementById("educationChart"), {
+                    type: "pie",
+                    data: {
+                        labels: data.default_by_education.map(d => d.Education),
+                        datasets: [{
+                            data: data.default_by_education.map(d => d.Default),
+                            backgroundColor: ["#007bff", "#28a745", "#ffc107", "#dc3545", "#17a2b8"]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+
+
+
+
+                if (corrChart) corrChart.destroy();
+                corrChart = new Chart(document.getElementById("corrChart"), {
+                    type: "bar",
+                    data: {
+                        labels: Object.keys(data.correlations),
+                        datasets: [{
+                            label: "Correlation with Default",
+                            data: Object.values(data.correlations),
+                            backgroundColor: '#6c757d'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error("Visuals load failed:", e);
+            }
+        }
+        loadVisuals();
+
+
+
+
+        // --- Bank Recommendation (FIXED) ---
+        document.getElementById("bankForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            // Collect data from the new form elements
+            const data = {
+                CreditScore: document.getElementById('BankCreditScore').value,
+                Income: document.getElementById('BankIncome').value,
+                Age: document.getElementById('BankAge').value,
+                LoanAmount: document.getElementById('BankLoanAmount').value,
+                Education: e.target.querySelector('select[name="Education"]').value,
+                EmploymentType: e.target.querySelector('select[name="EmploymentType"]').value,
+            };
+
+
+
+
+            try {
+                const res = await fetch("/api/recommend_bank", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+                const out = await res.json();
+                const box = document.getElementById("bankResult");
+
+
+                if (!res.ok || out.error || out.message) {
+                    box.innerHTML = `<div class='alert alert-warning'>${out.error || out.message || 'No banks matched your criteria.'}</div>`;
+                } else {
+                    const banks = Array.isArray(out) ? out : [out];
+                    box.innerHTML = `<h5>🏦 Top Recommended Banks</h5><div class="list-group">
+                        ${banks.map(r => `<div class="list-group-item">
+                                <h6 class="mb-1">${r.Bank_Name || 'N/A'}</h6>
+                                <p class="mb-1">
+                                    <strong>Interest Rate:</strong> ${r.Interest_Rate ? r.Interest_Rate + '%' : 'N/A'} |
+                                    <strong>Processing Fee:</strong> ₹${r.Processing_Fee ? parseFloat(r.Processing_Fee).toLocaleString('en-IN') : 'N/A'} |
+                                    <strong>Loan Type:</strong> ${r.Loan_Type || 'N/A'}
+                                </p>
+                                <small class="text-muted">
+                                    Min Credit: ${r.Min_Credit_Score || 'N/A'}, Min Income: ₹${r.Min_Income ? parseFloat(r.Min_Income).toLocaleString('en-IN') : 'N/A'}
+                                </small>
+                            </div>`).join('')}
+                    </div>`;
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById("bankResult").innerHTML = `<div class='alert alert-danger'>Server error: Failed to connect to bank recommendation API.</div>`;
+            }
+        });
+
+
+
+
+        // --- Customer Clusters ---
+        async function loadClusters() {
+            try {
+                const res = await fetch("/api/clusters");
+                if (!res.ok) {
+                    const error = await res.json();
+                    document.getElementById("clusterLoading").innerHTML = `<div class='alert alert-danger'>${error.error || 'Failed to load clusters'}</div>`;
+                    return;
+                }
+                const data = await res.json();
+                document.getElementById("clusterLoading").style.display = 'none';
+                document.getElementById("clustersChart").style.display = 'block';
+                document.getElementById("clusterPie").style.display = 'block';
+                document.getElementById("clusterTestCard").style.display = 'block';
+
+
+
+
+                // Display Cluster Stats Table
+                const statsDiv = document.getElementById("clusterStats");
+                statsDiv.style.display = 'block';
+                statsDiv.innerHTML = `<table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Cluster</th>
+                            <th>Risk Level</th>
+                            <th>Size</th>
+                            <th>Avg Income</th>
+                            <th>Avg Credit</th>
+                            <th>Default Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.clusters.map(c => `<tr>
+                            <td><span class="badge" style="background-color: ${c.color}">Cluster ${c.cluster_id || c.cluster}</span></td>
+                            <td>${c.risk_label}</td>
+                            <td>${c.size}</td>
+                            <td>₹${parseInt(c.avg_income).toLocaleString('en-IN')}</td>
+                            <td>${c.avg_credit.toFixed(1)}</td>
+                            <td>${(c.default_rate * 100).toFixed(1)}%</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+
+
+
+
+                // Destroy previous charts if they exist
+                if (clustersChart) clustersChart.destroy();
+                if (clusterPie) clusterPie.destroy();
+
+
+
+
+                // Scatter chart for clusters
+                const ctx = document.getElementById("clustersChart").getContext("2d");
+                clustersChart = new Chart(ctx, {
+                    type: "scatter",
+                    data: {
+                        datasets: data.clusters.map((cluster, i) => ({
+                            label: `${cluster.risk_label} (Cluster ${cluster.cluster_id || cluster.cluster})`,
+                            data: cluster.points.map(p => ({
+                                x: p.income,
+                                y: p.credit_score
+                            })),
+                            backgroundColor: cluster.color || `hsl(${i * 60}, 70%, 60%)`,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }))
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "Customer Risk Segmentation: Income vs Credit Score",
+                                font: {
+                                    size: 16
+                                }
+                            },
+                            legend: {
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "Income (₹)"
+                                },
+                                beginAtZero: true
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: "Credit Score"
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+
+
+
+                // Pie chart for risk level distribution
+                const pieCtx = document.getElementById("clusterPie").getContext("2d");
+                const riskGroups = {};
+                data.clusters.forEach(c => {
+                    const label = c.risk_label;
+                    if (!riskGroups[label]) {
+                        riskGroups[label] = {
+                            size: 0,
+                            color: c.color || '#cccccc'
+                        };
+                    }
+                    riskGroups[label].size += c.size;
+                    riskGroups[label].color = c.color || riskGroups[label].color;
+                });
+
+
+
+
+                clusterPie = new Chart(pieCtx, {
+                    type: "pie",
+                    data: {
+                        labels: Object.keys(riskGroups),
+                        datasets: [{
+                            data: Object.values(riskGroups).map(g => g.size),
+                            backgroundColor: Object.values(riskGroups).map(g => g.color)
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "Customer Distribution by Risk Level"
+                            },
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+
+
+
+
+            } catch (err) {
+                console.error("Cluster load failed:", err);
+                document.getElementById("clusterLoading").innerHTML = `<div class='alert alert-danger'>Error loading cluster data.</div>`;
+            }
+        }
+        loadClusters();
+
+
+
+
+        // --- Cluster Test (FIXED route name) ---
+        document.getElementById("clusterTestForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target).entries());
+            try {
+                // IMPORTANT: Route changed to /api/test_cluster
+                const res = await fetch("/api/test_cluster", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+                const out = await res.json();
+
+
+                // Use the color from the API response for the success message
+                const risk_color = out.color || '#28a745';
+
+
+                document.getElementById("clusterTestResult").innerHTML = res.ok ?
+                    `<div class='alert text-white' style='background-color: ${risk_color}'>
+                        <strong>Cluster ID:</strong> ${out.cluster}<br>
+                        <strong>Risk Level:</strong> ${out.risk_label}<br>
+                        <strong>Recommendation:</strong> ${out.recommendation || 'N/A'}
+                    </div>` :
+                    // The server error message is now more informative
+                    `<div class='alert alert-danger'>${out.error || 'Server error: The backend API failed to respond or crashed.'}</div>`;
+            } catch (err) {
+                console.error(err);
+                document.getElementById("clusterTestResult").innerHTML = `<div class='alert alert-danger'>Server error: The backend API failed to respond or crashed. Check server logs for details.</div>`;
+            }
+        });
+
+
+        // --- Chatbot Functionality ---
+        const chatMessages = document.getElementById("chatMessages");
+        const chatbotForm = document.getElementById("chatbotForm");
+        const chatInput = document.getElementById("chatInput");
+        const sendBtnText = document.getElementById("sendBtnText");
+        const sendBtnSpinner = document.getElementById("sendBtnSpinner");
+
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = isUser ? "chat-message user-message" : "chat-message bot-message";
+            
+            if (isUser) {
+                messageDiv.innerHTML = `
+                    <div class="d-flex align-items-end justify-content-end w-100">
+                        <div class="flex-grow-1" style="max-width: 70%;">
+                            <div class="message-content">
+                                <p class="mb-0">${message}</p>
+                            </div>
+                            <small class="text-muted d-block text-end mt-1">Just now</small>
+                        </div>
+                        <div class="ms-2">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6c757d 0%, #495057 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">👤</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="d-flex align-items-start">
+                        <div class="me-2">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">🤖</div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="message-content">
+                                <p class="mb-0">${message}</p>
+                            </div>
+                            <small class="text-muted ms-2">Just now</small>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        chatbotForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, true);
+            chatInput.value = "";
+            
+            // Show loading state
+            sendBtnText.textContent = "Sending...";
+            sendBtnSpinner.classList.remove("d-none");
+            chatInput.disabled = true;
+            
+            try {
+                const res = await fetch("/api/chatbot", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok && data.response) {
+                    addMessage(data.response, false);
+                } else {
+                    // Show the actual error message from the API
+                    const errorMsg = data.error || "Sorry, I encountered an error. Please try again later.";
+                    addMessage(`Error: ${errorMsg}`, false);
+                    console.error("Chatbot API error:", data);
+                }
+            } catch (err) {
+                console.error("Chatbot error:", err);
+                addMessage("Sorry, I'm having trouble connecting. Please try again later.", false);
+            } finally {
+                // Restore button state
+                sendBtnText.textContent = "Send";
+                sendBtnSpinner.classList.add("d-none");
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
+        });
+
+
+    });
+</script>
+</body>
+
+
+</html>
+
         }
 
         .tab-content {
