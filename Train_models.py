@@ -5,6 +5,10 @@
 
 
 
+
+
+
+
 import os
 import warnings
 import pandas as pd
@@ -22,8 +26,16 @@ from xgboost import XGBClassifier
 
 
 
+
+
+
+
 warnings.filterwarnings("ignore")
 np.random.seed(42)
+
+
+
+
 
 
 
@@ -38,8 +50,16 @@ if not os.path.exists(DATA_PATH):
 
 
 
+
+
+
+
 df = pd.read_csv(DATA_PATH)
 print(f"✅ Loan dataset loaded: {len(df)} rows")
+
+
+
+
 
 
 
@@ -58,10 +78,18 @@ target_col = 'Default'
 
 
 
+
+
+
+
 categorical_cols = [
     'Education', 'EmploymentType', 'MaritalStatus',
     'HasMortgage', 'HasDependents', 'LoanPurpose', 'HasCoSigner'
 ]
+
+
+
+
 
 
 
@@ -78,6 +106,10 @@ for col in categorical_cols:
 
 
 
+
+
+
+
 # ============================================
 # STEP 4: Train-test split
 # ============================================
@@ -86,6 +118,10 @@ y = df[target_col]
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
+
+
+
+
 
 
 
@@ -100,9 +136,17 @@ X_test_scaled = scaler.transform(X_test)
 
 
 
+
+
+
+
 pca = PCA(n_components=2)
 X_train_pca = pca.fit_transform(X_train_scaled)
 X_test_pca = pca.transform(X_test_scaled)
+
+
+
+
 
 
 
@@ -128,12 +172,20 @@ print(f"🌲 RF Accuracy: {rf_accuracy:.4f} ({rf_accuracy*100:.2f}%)")
 
 
 
+
+
+
+
 # ============================================
 # STEP 7: KNN (Optimized - fewer k values)
 # ============================================
 best_knn_accuracy = 0
 best_k = 5
 best_knn_model = None
+
+
+
+
 
 
 
@@ -160,10 +212,18 @@ for k in [5, 7, 9]:
 
 
 
+
+
+
+
 knn_model = best_knn_model
 y_pred_knn = knn_model.predict(X_test_scaled)
 knn_accuracy = accuracy_score(y_test, y_pred_knn)
 print(f"🤖 KNN Accuracy (k={best_k}): {knn_accuracy:.4f} ({knn_accuracy*100:.2f}%)")
+
+
+
+
 
 
 
@@ -176,6 +236,10 @@ X_cluster_scaled = StandardScaler().fit_transform(df[cluster_features])
 kmeans_model = KMeans(n_clusters=6, random_state=42, n_init='auto')
 kmeans_model.fit(X_cluster_scaled)
 df['Cluster'] = kmeans_model.labels_
+
+
+
+
 
 
 
@@ -193,10 +257,16 @@ df['Cluster_Risk'] = df['Cluster'].map(cluster_risks)
 
 
 
+
+
+
+
 # ===========================================================
 # ✅ STEP 9: Improved XGBoost Bank Recommendation Model
 # ===========================================================
 from sklearn.metrics import classification_report
+
+
 
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -205,8 +275,14 @@ MODELS_DIR = os.path.join(BASE, "models")
 os.makedirs(MODELS_DIR, exist_ok=True)
 
 
+
+
 bank_df = pd.read_csv(BANK_DATA_PATH)
 print(f"\n📁 Bank dataset loaded: {len(bank_df)} rows")
+
+
+
+
 
 
 
@@ -223,6 +299,10 @@ def qualifies_for_bank(profile, bank_row):
     edu_ok = profile['Education'] == bank_row['Education_Required']
     emp_ok = profile['EmploymentType'] == bank_row['Employment_Type']
     return credit_ok and income_ok and age_ok and loan_ok and edu_ok and emp_ok
+
+
+
+
 
 
 
@@ -245,13 +325,23 @@ def find_matching_bank(profile, bank_df):
 
 
 
+
+
+
+
 # Get unique values for comprehensive training
 educations = sorted(bank_df['Education_Required'].unique().tolist())
 employments = sorted(bank_df['Employment_Type'].unique().tolist())
 bank_names = sorted(bank_df['Bank_Name'].unique().tolist())
 
 
+
+
 print(f"📊 Found {len(educations)} education types, {len(employments)} employment types, {len(bank_names)} banks")
+
+
+
+
 
 
 
@@ -263,9 +353,15 @@ print("🔄 Generating comprehensive training data for all combinations...")
 train_data = []
 
 
+
+
 # Increase samples for better coverage
 samples_per_bank_group = 1200  # Increased for better accuracy
 print(f"   Generating {samples_per_bank_group} samples per bank group...")
+
+
+
+
 
 
 
@@ -274,6 +370,8 @@ print(f"   Generating {samples_per_bank_group} samples per bank group...")
 bank_groups = bank_df.groupby(['Bank_Name', 'Education_Required', 'Employment_Type'])
 total_groups = len(bank_groups)
 processed = 0
+
+
 
 
 for (bank_name, edu, emp), group in bank_groups:
@@ -355,6 +453,8 @@ for (bank_name, edu, emp), group in bank_groups:
         })
 
 
+
+
 # Also generate samples for all education/employment combinations
 print("   Generating samples for all education/employment combinations...")
 for edu in educations:
@@ -402,10 +502,16 @@ for edu in educations:
                 })
 
 
+
+
 train_df = pd.DataFrame(train_data)
 print(f"✅ Generated {len(train_df)} total samples")
 print(f"   Qualified: {(train_df['BankName'] != 'No_Match').sum()} ({(train_df['BankName'] != 'No_Match').sum() / len(train_df) * 100:.1f}%)")
 print(f"   Unqualified: {(train_df['BankName'] == 'No_Match').sum()} ({(train_df['BankName'] == 'No_Match').sum() / len(train_df) * 100:.1f}%)")
+
+
+
+
 
 
 
@@ -416,15 +522,21 @@ print(f"   Unqualified: {(train_df['BankName'] == 'No_Match').sum()} ({(train_df
 print("\n🔧 Encoding features and creating engineered features...")
 
 
+
+
 # Encode categorical variables
 le_edu = LabelEncoder()
 le_emp = LabelEncoder()
 le_bank = LabelEncoder()
 
 
+
+
 train_df['Education_enc'] = le_edu.fit_transform(train_df['Education'].astype(str))
 train_df['EmploymentType_enc'] = le_emp.fit_transform(train_df['EmploymentType'].astype(str))
 train_df['BankName_enc'] = le_bank.fit_transform(train_df['BankName'].astype(str))
+
+
 
 
 # Save encoders
@@ -433,6 +545,8 @@ bank_label_encoders = {
     'EmploymentType': le_emp,
     'BankName': le_bank
 }
+
+
 
 
 # Advanced feature engineering
@@ -446,6 +560,8 @@ train_df['Income_Per_Month'] = train_df['Income'] / 12
 train_df['Loan_To_Annual_Income'] = train_df['LoanAmount'] / (train_df['Income'] + 1)
 
 
+
+
 # Feature selection for XGBoost
 feature_cols = [
     'CreditScore', 'Income', 'Age', 'LoanAmount',
@@ -456,12 +572,18 @@ feature_cols = [
 ]
 
 
+
+
 X = train_df[feature_cols].values
 y = train_df['BankName_enc'].values
 
 
+
+
 print(f"📊 Features: {len(feature_cols)}")
 print(f"📊 Classes: {len(le_bank.classes_)}")
+
+
 
 
 # Train-test split with stratification
@@ -470,10 +592,14 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 
+
+
 # Further split for validation
 X_train_split, X_val, y_train_split, y_val = train_test_split(
     X_train, y_train, test_size=0.15, random_state=42, stratify=y_train
 )
+
+
 
 
 print(f"📊 Training samples: {len(X_train_split)}")
@@ -483,10 +609,16 @@ print(f"📊 Test samples: {len(X_test)}")
 
 
 
+
+
+
+
 # -----------------------------------------------------------
 # 🚀 Train Improved XGBoost Model
 # -----------------------------------------------------------
 print("\n🚀 Training XGBoost Model with improved hyperparameters...")
+
+
 
 
 # Improved XGBoost parameters for better accuracy
@@ -513,6 +645,8 @@ xgb_model = XGBClassifier(
 )
 
 
+
+
 # Train with validation set for early stopping
 print("   Training model...")
 xgb_model.fit(
@@ -522,16 +656,22 @@ xgb_model.fit(
 )
 
 
+
+
 # Predictions
 y_pred_train = xgb_model.predict(X_train_split)
 y_pred_val = xgb_model.predict(X_val)
 y_pred_test = xgb_model.predict(X_test)
 
 
+
+
 # Calculate accuracies
 train_acc = accuracy_score(y_train_split, y_pred_train) * 100
 val_acc = accuracy_score(y_val, y_pred_val) * 100
 test_acc = accuracy_score(y_test, y_pred_test) * 100
+
+
 
 
 # Cross-validation (create a new model without early stopping for CV)
@@ -569,6 +709,8 @@ except Exception as e:
     cv_available = False
 
 
+
+
 print(f"\n✅ XGBoost Model Performance:")
 print(f"   Training Accuracy: {train_acc:.2f}%")
 print(f"   Validation Accuracy: {val_acc:.2f}%")
@@ -579,6 +721,8 @@ else:
     print(f"   Cross-Validation: Skipped")
 
 
+
+
 # Feature importance
 feature_importance = pd.DataFrame({
     'feature': feature_cols,
@@ -586,9 +730,13 @@ feature_importance = pd.DataFrame({
 }).sort_values('importance', ascending=False)
 
 
+
+
 print(f"\n📊 Top 5 Most Important Features:")
 for idx, row in feature_importance.head(5).iterrows():
     print(f"   {row['feature']}: {row['importance']:.4f}")
+
+
 
 
 # Classification report
@@ -596,6 +744,10 @@ print(f"\n📋 Classification Report (Test Set):")
 print(classification_report(y_test, y_pred_test,
                            target_names=[str(name) for name in le_bank.classes_],
                            zero_division=0))
+
+
+
+
 
 
 
@@ -609,10 +761,24 @@ joblib.dump(bank_label_encoders, os.path.join(MODELS_DIR, "bank_label_encoders.j
 joblib.dump(feature_cols, os.path.join(MODELS_DIR, "xgb_feature_columns.joblib"))
 
 
+
+
 print("✅ XGBoost model and encoders saved successfully!")
 print(f"   Model file: xgb_bank_model.joblib")
 print(f"   Encoders file: bank_label_encoders.joblib")
 print(f"   Features file: xgb_feature_columns.joblib")
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -636,6 +802,8 @@ joblib.dump(pca, os.path.join(MODELS_DIR, "pca.joblib"))
 joblib.dump(scaler, os.path.join(MODELS_DIR, "scaler.joblib"))
 joblib.dump(encoders, os.path.join(MODELS_DIR, "encoders.joblib"))
 # XGBoost bank model and encoders are already saved above in STEP 9
+
+
 
 
 print("\n✅ All models saved to 'models/' folder!")
